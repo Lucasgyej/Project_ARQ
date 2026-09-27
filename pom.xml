@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.banco</groupId>
-	<artifactId>tp2_avance</artifactId>
+	<artifactId>Project_ARQ</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
+	<name>Project_ARQ</name>
 	<description/>
 	<url/>
 	<licenses>
