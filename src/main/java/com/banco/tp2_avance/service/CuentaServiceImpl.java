@@ -1,45 +1,121 @@
 package com.banco.tp2_avance.service;
 
+import com.banco.tp2_avance.dto.*;
+import com.banco.tp2_avance.enums.EstadoCuenta;
+import com.banco.tp2_avance.enums.EstadoTransaccion;
+import com.banco.tp2_avance.enums.TipoTransaccion;
+import com.banco.tp2_avance.exception.RecursoNoEncontradoException;
+import com.banco.tp2_avance.exception.SaldoInsuficienteException;
+import com.banco.tp2_avance.model.CajaDeAhorro;
+import com.banco.tp2_avance.model.Cliente;
 import com.banco.tp2_avance.model.Cuenta;
+import com.banco.tp2_avance.model.Transaccion;
+import com.banco.tp2_avance.repository.ClienteRepository;
 import com.banco.tp2_avance.repository.CuentaRepository;
+import com.banco.tp2_avance.repository.TransaccionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 public class CuentaServiceImpl implements CuentaService {
 
-
     private final CuentaRepository cuentaRepository;
+    private final ClienteRepository clienteRepository;
+    private final TransaccionRepository transaccionRepository;
 
-    public CuentaServiceImpl(CuentaRepository cuentaRepository) {
+    public CuentaServiceImpl(CuentaRepository cuentaRepository,
+                             ClienteRepository clienteRepository,
+                             TransaccionRepository transaccionRepository) {
         this.cuentaRepository = cuentaRepository;
+        this.clienteRepository = clienteRepository;
+        this.transaccionRepository = transaccionRepository;
     }
 
     @Override
-    public void depositar(String cbu, BigDecimal monto) {
+    @Transactional
+    public CuentaResponseDto crearCuenta(CuentaRequestDto dto) {
+        Cliente cliente = clienteRepository.findById(dto.getClienteId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró el cliente con ID: " + dto.getClienteId()));
 
-        Cuenta cuenta = cuentaRepository.findByCbu(cbu)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
-        cuenta.setSaldoOperativo(cuenta.getSaldoOperativo().add(monto));
-        cuentaRepository.save(cuenta);
+        CajaDeAhorro cuenta = new CajaDeAhorro();
+        cuenta.setCbu(dto.getCbu());
+        cuenta.setAlias(dto.getAlias());
+        cuenta.setSaldoOperativo(dto.getSaldoInicial());
+        cuenta.setEstado(EstadoCuenta.ACTIVA);
+        cuenta.getCotitulares().add(cliente);
+
+        Cuenta guardada = cuentaRepository.save(cuenta);
+
+        return new CuentaResponseDto(
+                guardada.getId(),
+                guardada.getCbu(),
+                guardada.getAlias(),
+                guardada.getSaldoOperativo(),
+                guardada.getEstado().name()
+        );
     }
 
     @Override
-    public void extraer(String cbu, BigDecimal monto) {
-
+    @Transactional(readOnly = true)
+    public CuentaResponseDto obtenerPorCbu(String cbu) {
         Cuenta cuenta = cuentaRepository.findByCbu(cbu)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
-        if (cuenta.getSaldoOperativo().compareTo(monto) < 0) {
-            throw new RuntimeException("Saldo insuficiente");
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró la cuenta con CBU: " + cbu));
+
+        return new CuentaResponseDto(
+                cuenta.getId(),
+                cuenta.getCbu(),
+                cuenta.getAlias(),
+                cuenta.getSaldoOperativo(),
+                cuenta.getEstado().name()
+        );
+    }
+
+    @Override
+    @Transactional
+    public TransferenciaResponseDto transferir(TransferenciaRequestDto dto) {
+        Cuenta origen = cuentaRepository.findByCbu(dto.getCbuOrigen())
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cuenta de origen no encontrada con CBU: " + dto.getCbuOrigen()));
+
+        Cuenta destino = cuentaRepository.findByCbu(dto.getCbuDestino())
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cuenta de destino no encontrada con CBU: " + dto.getCbuDestino()));
+
+        if (origen.getSaldoOperativo().compareTo(dto.getMonto()) < 0) {
+            throw new SaldoInsuficienteException("La cuenta de origen no posee saldo suficiente para realizar la transferencia.");
         }
-        cuenta.setSaldoOperativo(cuenta.getSaldoOperativo().subtract(monto));
-        cuentaRepository.save(cuenta);
-    }
 
-    @Override
-    public void transferir(String cbuOrigen, String cbuDestino, BigDecimal monto) {
-        extraer(cbuOrigen, monto);
-        depositar(cbuDestino, monto);
+        origen.setSaldoOperativo(origen.getSaldoOperativo().subtract(dto.getMonto()));
+        destino.setSaldoOperativo(destino.getSaldoOperativo().add(dto.getMonto()));
+
+        cuentaRepository.save(origen);
+        cuentaRepository.save(destino);
+
+        Transaccion txSalida = new Transaccion(
+                LocalDateTime.now(),
+                dto.getMonto(),
+                TipoTransaccion.TRANSFERENCIA_ENVIADA,
+                EstadoTransaccion.COMPLETADA,
+                origen
+        );
+
+        Transaccion txEntrada = new Transaccion(
+                LocalDateTime.now(),
+                dto.getMonto(),
+                TipoTransaccion.TRANSFERENCIA_RECIBIDA,
+                EstadoTransaccion.COMPLETADA,
+                destino
+        );
+
+        transaccionRepository.save(txSalida);
+        transaccionRepository.save(txEntrada);
+
+        return new TransferenciaResponseDto(
+                "Transferencia ejecutada con éxito",
+                dto.getCbuOrigen(),
+                dto.getCbuDestino(),
+                dto.getMonto(),
+                LocalDateTime.now()
+        );
     }
 }

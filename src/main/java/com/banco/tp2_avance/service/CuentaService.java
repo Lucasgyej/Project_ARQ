@@ -1,13 +1,12 @@
 package com.banco.tp2_avance.service;
 
-
-import java.math.BigDecimal;
+import com.banco.tp2_avance.dto.CuentaRequestDto;
+import com.banco.tp2_avance.dto.CuentaResponseDto;
+import com.banco.tp2_avance.dto.TransferenciaRequestDto;
+import com.banco.tp2_avance.dto.TransferenciaResponseDto;
 
 public interface CuentaService {
-
-    void depositar(String cbu, BigDecimal monto);
-
-    void extraer(String cbu, BigDecimal monto);
-
-    void transferir(String cbuOrigen, String cbuDestino, BigDecimal monto);
+    CuentaResponseDto crearCuenta(CuentaRequestDto dto);
+    CuentaResponseDto obtenerPorCbu(String cbu);
+    TransferenciaResponseDto transferir(TransferenciaRequestDto dto);
 }
