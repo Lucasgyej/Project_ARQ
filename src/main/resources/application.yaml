@@ -2,9 +2,9 @@ spring:
   application:
     name: tp2_avance
   datasource:
-    url: jdbc:mysql://localhost:3306/banco_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: 154413711
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/banco_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:154413711}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
