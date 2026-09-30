@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  mysqldb:
-    image: mysql:8.0
-    container_name: mysql-banco-container
+  banco-mysql:
+    image: mysql:8.0.33
+    container_name: banco_mysql
     restart: always
     environment:
       MYSQL_DATABASE: banco_db
@@ -12,6 +12,35 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - banco-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p154413711"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  banco-app:
+    build: .
+    container_name: banco_app
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://banco-mysql:3306/banco_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "154413711"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      banco-mysql:
+        condition: service_healthy
+    networks:
+      - banco-network
 
 volumes:
   mysql_data:
+
+networks:
+  banco-network:
+    driver: bridge
