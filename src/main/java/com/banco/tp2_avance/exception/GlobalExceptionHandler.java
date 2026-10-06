@@ -67,4 +67,13 @@ public class GlobalExceptionHandler {
         respuesta.put("mensaje", ex.getMessage());
         return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(TokenInvalidoException.class)
+    public ResponseEntity<Map<String, Object>> manejarTokenInvalido(TokenInvalidoException ex) {
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("timestamp", LocalDateTime.now());
+        respuesta.put("status", HttpStatus.BAD_REQUEST.value());
+        respuesta.put("error", "Token Inválido o Expirado");
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
+    }
 }
