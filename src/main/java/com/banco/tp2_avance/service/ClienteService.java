@@ -55,8 +55,7 @@ public class ClienteService {
         adherente.setRol(RolCliente.ADHERENTE);
         adherente.setParentesco(dto.getParentesco());
         adherente.setCuentaTitular(cuentaTitular);
-        adherente.setEstado(EstadoCliente.ACTIVO); // Los adherentes quedan operativos directamente
-
+        adherente.setEstado(EstadoCliente.ACTIVO);
         Cliente guardado = clienteRepository.save(adherente);
 
         return new ClienteResponseDto(

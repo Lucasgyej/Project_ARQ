@@ -2,6 +2,7 @@ package com.banco.tp2_avance.model;
 
 import com.banco.tp2_avance.enums.EstadoTransaccion;
 import com.banco.tp2_avance.enums.TipoTransaccion;
+import com.banco.tp2_avance.model.Cliente;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,6 +32,18 @@ public class Transaccion extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "cuenta_id", nullable = false)
     private Cuenta cuenta;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id")
+    private Cliente cliente;
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
     public Transaccion() {
     }

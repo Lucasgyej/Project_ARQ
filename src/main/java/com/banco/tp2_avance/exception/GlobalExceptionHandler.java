@@ -48,4 +48,23 @@ public class GlobalExceptionHandler {
         respuesta.put("detalles", errores);
         return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(OperacionNoPermitidaException.class)
+    public ResponseEntity<Map<String, Object>> manejarOperacionNoPermitida(OperacionNoPermitidaException ex) {
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("timestamp", LocalDateTime.now());
+        respuesta.put("status", HttpStatus.FORBIDDEN.value());
+        respuesta.put("error", "Operación no permitida");
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(LimiteDiarioSuperadoException.class)
+    public ResponseEntity<Map<String, Object>> manejarLimiteDiarioSuperado(LimiteDiarioSuperadoException ex) {
+        Map<String, Object> respuesta = new HashMap<>();
+        respuesta.put("timestamp", LocalDateTime.now());
+        respuesta.put("status", HttpStatus.BAD_REQUEST.value());
+        respuesta.put("error", "Límite diario superado");
+        respuesta.put("mensaje", ex.getMessage());
+        return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
+    }
 }
