@@ -27,7 +27,7 @@ public class AdherenteRequestDto {
 
     public AdherenteRequestDto() {}
 
-    // Getters y Setters
+
     public String getNombreRazonSocial() { return nombreRazonSocial; }
     public void setNombreRazonSocial(String nombreRazonSocial) { this.nombreRazonSocial = nombreRazonSocial; }
 

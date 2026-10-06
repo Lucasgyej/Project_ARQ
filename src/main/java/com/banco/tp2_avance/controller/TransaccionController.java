@@ -1,11 +1,15 @@
 package com.banco.tp2_avance.controller;
 
+import com.banco.tp2_avance.dto.ExtraccionRequestDto;
 import com.banco.tp2_avance.dto.TransferenciaRequestDto;
 import com.banco.tp2_avance.dto.TransferenciaResponseDto;
 import com.banco.tp2_avance.service.CuentaService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/transacciones")
@@ -20,6 +24,13 @@ public class TransaccionController {
     @PostMapping("/transferir")
     public ResponseEntity<TransferenciaResponseDto> transferir(@Valid @RequestBody TransferenciaRequestDto dto) {
         TransferenciaResponseDto respuesta = cuentaService.transferir(dto);
+        return ResponseEntity.ok(respuesta);
+    }
+    @PostMapping("/extracciones")
+    public ResponseEntity<Map<String, String>> extraer(@Valid @RequestBody ExtraccionRequestDto dto) {
+        cuentaService.realizarExtraccion(dto);
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Extracción completada con éxito por un monto de: $" + dto.getMonto());
         return ResponseEntity.ok(respuesta);
     }
 }
