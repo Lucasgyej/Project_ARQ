@@ -12,4 +12,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     Optional<Cliente> findByCuil(String cuil);
 
     Optional<Cliente> findByEmailIgnoreCase(String email);
+
+    Optional<Cliente> findByTokenActivacion(String tokenActivacion);
 }

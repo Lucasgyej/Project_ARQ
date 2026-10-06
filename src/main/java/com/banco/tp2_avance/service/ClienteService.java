@@ -7,6 +7,7 @@ import com.banco.tp2_avance.enums.EstadoCliente;
 import com.banco.tp2_avance.enums.RolCliente;
 import com.banco.tp2_avance.event.ClienteRegistradoEvent;
 import com.banco.tp2_avance.exception.RecursoNoEncontradoException;
+import com.banco.tp2_avance.exception.TokenInvalidoException;
 import com.banco.tp2_avance.model.Cliente;
 import com.banco.tp2_avance.model.Cuenta;
 import com.banco.tp2_avance.repository.ClienteRepository;
@@ -88,5 +89,28 @@ public class ClienteService {
                 guardado.getCuil(),
                 guardado.getEmail()
         );
+    }
+    @Transactional
+    public void activarCliente(String token) {
+        if (token == null || token.isBlank()) {
+            throw new TokenInvalidoException("El token de activación es obligatorio.");
+        }
+
+        Cliente cliente = clienteRepository.findByTokenActivacion(token)
+                .orElseThrow(() -> new TokenInvalidoException("Token de activación inválido o inexistente."));
+
+        if (cliente.getEstado() == EstadoCliente.ACTIVO) {
+            throw new TokenInvalidoException("La cuenta ya se encuentra activa.");
+        }
+
+        if (cliente.getFechaExpiracionToken() == null || cliente.getFechaExpiracionToken().isBefore(LocalDateTime.now())) {
+            throw new TokenInvalidoException("El token de activación ha expirado.");
+        }
+
+        cliente.setEstado(EstadoCliente.ACTIVO);
+        cliente.setTokenActivacion(null);
+        cliente.setFechaExpiracionToken(null);
+
+        clienteRepository.save(cliente);
     }
 }

@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 public class ClienteController {
 
@@ -27,5 +30,12 @@ public class ClienteController {
     public ResponseEntity<ClienteResponseDto> registrarAdherente(@Valid @RequestBody AdherenteRequestDto dto) {
         ClienteResponseDto respuesta = clienteService.registrarAdherente(dto);
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
+    }
+    @GetMapping("/activar")
+    public ResponseEntity<Map<String, String>> activarCliente(@RequestParam String token) {
+        clienteService.activarCliente(token);
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Cuenta activada exitosamente. Ya podés operar con el banco.");
+        return ResponseEntity.ok(respuesta);
     }
 }
