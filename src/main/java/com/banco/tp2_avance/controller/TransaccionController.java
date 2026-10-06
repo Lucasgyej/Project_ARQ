@@ -26,11 +26,5 @@ public class TransaccionController {
         TransferenciaResponseDto respuesta = cuentaService.transferir(dto);
         return ResponseEntity.ok(respuesta);
     }
-    @PostMapping("/extracciones")
-    public ResponseEntity<Map<String, String>> extraer(@Valid @RequestBody ExtraccionRequestDto dto) {
-        cuentaService.realizarExtraccion(dto);
-        Map<String, String> respuesta = new HashMap<>();
-        respuesta.put("mensaje", "Extracción completada con éxito por un monto de: $" + dto.getMonto());
-        return ResponseEntity.ok(respuesta);
-    }
+
 }

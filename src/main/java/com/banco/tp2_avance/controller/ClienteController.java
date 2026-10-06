@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api/v1/clientes")
 public class ClienteController {
 
     private final ClienteService clienteService;

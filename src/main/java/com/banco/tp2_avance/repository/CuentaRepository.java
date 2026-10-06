@@ -16,4 +16,5 @@ public interface CuentaRepository extends JpaRepository<Cuenta, Long> {
     Optional<Cuenta> findByAlias(String alias);
 
     List<Cuenta> findByEstado(EstadoCuenta estado);
+
 }
