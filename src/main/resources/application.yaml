@@ -13,3 +13,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  app:
+    comisiones:
+      cuenta-corriente: 5000.00
+      caja-ahorro: 2000.00
+      cron: "0 0 0 1 * ?"
