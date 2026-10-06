@@ -19,6 +19,7 @@ public class CuentaController {
     }
 
     @PostMapping
+    //requestbody -> agarra el JSON y lo convierte en un objeto CuentaRequestDto
     public ResponseEntity<CuentaResponseDto> crearCuenta(@Valid @RequestBody CuentaRequestDto dto) {
         CuentaResponseDto respuesta = cuentaService.crearCuenta(dto);
         return new ResponseEntity<>(respuesta, HttpStatus.CREATED);
